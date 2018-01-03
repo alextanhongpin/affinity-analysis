@@ -1,4 +1,5 @@
-import Data.List
+import qualified Data.List as L
+import qualified Data.Set as S
 
 main :: IO()
 main = do
@@ -10,15 +11,25 @@ main = do
   
   let items = ["Key-chain", "Yo-yo"]
   print $ support items transactions
-  print $ confidence "Key-chain" "Yo-yo" transactions
+  print $ support' items transactions
 
 -- Returns the score of the frequency in which item(s) appears in
 -- the transactions
 support :: Fractional a => [String] -> [[String]] -> a
 support items transactions =
   let n = length items
+      isValid row = items `L.intersect` row
+      equalLen row = length row == n
       den = fromIntegral $ length transactions
-      num = fromIntegral $ length [ 1 | rows <- transactions, length (items `intersect` rows) == n]
+      num = fromIntegral $ length [ 1 | row <- transactions, equalLen $ isValid row]
+  in num / den
+
+support' :: Fractional a => [String] -> [[String]] -> a
+support' items transactions =
+  let n = length items
+      den = fromIntegral $ length transactions
+      validRows = filter (== True) $ map (\a -> S.fromList items `S.isSubsetOf` S.fromList a) transactions
+      num = fromIntegral $ length validRows
   in num / den
 
 -- Loop through each transactions
