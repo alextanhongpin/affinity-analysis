@@ -11,25 +11,14 @@ main = do
   
   let items = ["Key-chain", "Yo-yo"]
   print $ support items transactions
-  print $ support' items transactions
 
 -- Returns the score of the frequency in which item(s) appears in
 -- the transactions
 support :: Fractional a => [String] -> [[String]] -> a
 support items transactions =
-  let n = length items
-      isValid row = items `L.intersect` row
-      equalLen row = length row == n
+  let occurances = [ 1 | row <- transactions, S.fromList items `S.isSubsetOf` S.fromList row]
       den = fromIntegral $ length transactions
-      num = fromIntegral $ length [ 1 | row <- transactions, equalLen $ isValid row]
-  in num / den
-
-support' :: Fractional a => [String] -> [[String]] -> a
-support' items transactions =
-  let n = length items
-      den = fromIntegral $ length transactions
-      validRows = filter (== True) $ map (\a -> S.fromList items `S.isSubsetOf` S.fromList a) transactions
-      num = fromIntegral $ length validRows
+      num = fromIntegral $ length occurances
   in num / den
 
 -- Loop through each transactions
