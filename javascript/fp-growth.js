@@ -37,8 +37,7 @@ class FPGrowth {
   }
   // Step 3: Sort the list according to the count of each item
   sortItems (items) {
-    // [...new Set(items)]
-    return items.filter((a) => {
+    return [...new Set(items)].filter((a) => {
       return this.headerTable[a]
     }).sort((a, b) => {
       const bScore = this.headerTable[b] || 0
