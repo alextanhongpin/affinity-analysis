@@ -1,5 +1,5 @@
 
-const words = require('../data/transactions.json')
+const words = require('../data/simple.json')
 
 // Frequent Pattern Growth
 class FPGrowth {
