@@ -1,0 +1,32 @@
+## FP-Growth
+
+1. Calculate the support count of each item in S
+2. Sort items in decreasing support counts
+3. Read transaction n
+
+if has overlapping prefix:
+
+4. Increment the frequency count for each overlapped item
+5. Create new nodes for none overlapped items
+6. Set the frequency count to one
+
+else:
+
+4. Create new nodes labelled with the items in t
+5. Set the frequency count to 1
+6. Create pointers to common items
+
+Repeat until there are not more items.
+
+Additional a FP-Tree uses pointers connecting between nodes that have the same items creating a singly linked list.
+
+These pointers are used to access individual items in the tree much faster.
+
+
+### Best Scenario
+
+There is only a single node, because all transactions have the same set of items.
+
+### Worst case
+
+Multiple nodes where every transaction has a unique set of items.
