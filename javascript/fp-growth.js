@@ -1,15 +1,15 @@
-// const transactions = [
-//   ['a', 'b'],
-//   ['b', 'c', 'd'],
-//   ['a', 'c', 'd', 'e'],
-//   ['a', 'd', 'e'],
-//   ['a', 'b', 'c'],
-//   ['a', 'b', 'c', 'd'],
-//   ['a'],
-//   ['a', 'b', 'c'],
-//   ['a', 'b', 'd'],
-//   ['b', 'c', 'e']
-// ]
+const transactions = [
+  ['a', 'b'],
+  ['b', 'c', 'd'],
+  ['a', 'c', 'd', 'e'],
+  ['a', 'd', 'e'],
+  ['a', 'b', 'c'],
+  ['a', 'b', 'c', 'd'],
+  ['a'],
+  ['a', 'b', 'c'],
+  ['a', 'b', 'd'],
+  ['b', 'c', 'e']
+]
 
 // FrequentPatternGrowth
 class FPGrowth {
@@ -35,10 +35,9 @@ class FPGrowth {
   }
   sortItems (items) {
     // [...new Set(items)]
-    // return items.sort((a, b) => {
-    //   return this.headerTable[b] - this.headerTable[a]
-    // })
-    return items
+    return items.sort((a, b) => {
+      return this.headerTable[b] - this.headerTable[a]
+    })
   }
   mapFrequentPattern () {
     this.table = {}
@@ -56,7 +55,7 @@ class FPGrowth {
     })
   }
   find (items) {
-    const sorted = items // this.sortItems(items)
+    const sorted = this.sortItems(items)
     let found = {...this.table}
     for (let i = 0; i < sorted.length; i += 1) {
       const item = sorted[i]
@@ -71,27 +70,22 @@ class FPGrowth {
 }
 
 const words = [
-  'hello',
-  'hoi',
-  'awesome',
-  'alter',
-  'crazy',
-  'increase',
-  'decrease',
-  'paper',
-  // FP?
-  'already',
-  'already',
-  'already',
-  'already',
-  'already'
-].map(word => [...new Set(word.split(''))])
+  ['hello', 'world'],
+  ['this', 'is', 'amazing'],
+  ['this', 'is', 'real'],
+  ['why', 'is', 'it', 'good'],
+  ['vue', 'js'],
+  ['vue', 'is', 'good'],,
+  ['vue', 'js'],
+  ['vue', 'is', 'bad'],
+  ['is', 'this', 'good']
+]
 
 console.log(words)
-const fp = new FPGrowth(words)
+const fp = new FPGrowth(transactions)
 fp.generateHeaderTable()
 fp.mapFrequentPattern()
 console.log(fp)
 console.log(JSON.stringify(fp.table, null, 2))
-console.log('found:', JSON.stringify(fp.find('hell'.split('')), null, 2))
-console.log('found al:', fp.find('al'.split(''), null, 2))
+console.log('found al:', fp.find(['this', 'is'], null, 2))
+console.log('found al:', fp.find(['a', 'b'], null, 2))
