@@ -67,6 +67,14 @@ function main () {
 
   let links = {}
 
+  // root 
+  const tree = {
+    start: {},
+    links: {
+      a: {}
+    }
+  }
+
   sortedTransactions.forEach((row) => {
     let dict = tree.root
     row.forEach((item, i) => {
