@@ -34,6 +34,10 @@ function sortRow (items, header) {
     return header[item]
   })
   return filteredItems.sort((a, b) => {
+    // If the score is the same, sort by alphabets
+    if (header[b] === header[a]) {
+      return b.charCodeAt(0) - a.charCodeAt(0)
+    }
     return header[b] - header[a]
   })
 }
@@ -69,36 +73,46 @@ function main () {
 
   // root
   const tree = {
-    start: {},
-    links: {
-      a: {}
-    }
+    // start: {},
+    // links: {
+    //   a: {}
+    // }
   }
 
   for (let i = 0; i < sortedTransactions.length; i += 1) {
     for (let j = 0; j < sortedTransactions[i].length; j += 1) {
       const rows = sortedTransactions[i]
+      const prev = rows[j - 1]
       const curr = rows[j]
       const next = j + 1 < rows.length ? rows[j + 1] : null
 
-      if (j === 0) {
-        if (!tree.start[curr]) {
-          tree.start[curr] = {}
-        }
-        if (!tree.start[curr][next]) {
-          tree.start[curr][next] = {count: 0}
-        }
-        tree.start[curr][next].count += 1
-      } else {
-        const prev = rows[j - 1]
-        if (!tree.links[curr]) {
-          tree.links[curr] = {}
-        }
-        if (!tree.links[curr][next]) {
-          tree.links[curr][next] = { prev, count: 0 }
-        }
-        tree.links[curr][next].count += 1
+      if (!tree[prev]) {
+        tree[prev] = {}
       }
+
+      if (!tree[prev][curr]) {
+        tree[prev][curr] = { count: -1, next }
+      }
+
+      tree[prev][curr].count += 1
+      // if (j === 0) {
+      //   if (!tree.start[curr]) {
+      //     tree.start[curr] = {}
+      //   }
+      //   if (!tree.start[curr][next]) {
+      //     tree.start[curr][next] = {count: 0}
+      //   }
+      //   tree.start[curr][next].count += 1
+      // } else {
+      //   const prev = rows[j - 1]
+      //   if (!tree.links[curr]) {
+      //     tree.links[curr] = {}
+      //   }
+      //   if (!tree.links[curr][next]) {
+      //     tree.links[curr][next] = { prev, count: 0 }
+      //   }
+      //   tree.links[curr][next].count += 1
+      // }
     }
   }
 
