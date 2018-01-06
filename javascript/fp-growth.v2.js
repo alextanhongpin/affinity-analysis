@@ -61,13 +61,13 @@ function main () {
 
   const sortedTransactions = sortTransactions(transactions, prunnedHeader)
   console.log(sortedTransactions)
-  let tree = {
-    root: {}
-  }
+  // let tree = {
+  //   root: {}
+  // }
 
   let links = {}
 
-  // root 
+  // root
   const tree = {
     start: {},
     links: {
@@ -75,28 +75,56 @@ function main () {
     }
   }
 
-  sortedTransactions.forEach((row) => {
-    let dict = tree.root
-    row.forEach((item, i) => {
-      if (!dict[item]) {
-        dict[item] = {
-          count: 0,
-          next: null,
-          prev: i - 1 > -1 ? row[i - 1] : null
+  for (let i = 0; i < sortedTransactions.length; i += 1) {
+    for (let j = 0; j < sortedTransactions[i].length; j += 1) {
+      const rows = sortedTransactions[i]
+      const curr = rows[j]
+      const next = j + 1 < rows.length ? rows[j + 1] : null
+
+      if (j === 0) {
+        if (!tree.start[curr]) {
+          tree.start[curr] = {}
         }
+        if (!tree.start[curr][next]) {
+          tree.start[curr][next] = {count: 0}
+        }
+        tree.start[curr][next].count += 1
+      } else {
+        const prev = rows[j - 1]
+        if (!tree.links[curr]) {
+          tree.links[curr] = {}
+        }
+        if (!tree.links[curr][next]) {
+          tree.links[curr][next] = { prev, count: 0 }
+        }
+        tree.links[curr][next].count += 1
       }
-            // Link similar items through pointers
-      if (!links[item]) {
-        links[item] = []
-      }
-      links[item].push(dict[item])
-      dict[item].count += 1
-      if (i !== row.length - 1) {
-        dict[item].next = {}
-      }
-      dict = dict[item].next
-    })
-  })
+    }
+  }
+
+  console.log(tree)
+  // sortedTransactions.forEach((row) => {
+  //   let dict = tree.root
+  //   row.forEach((item, i) => {
+  //     if (!dict[item]) {
+  //       dict[item] = {
+  //         count: 0,
+  //         next: null,
+  //         prev: i - 1 > -1 ? row[i - 1] : null
+  //       }
+  //     }
+  //           // Link similar items through pointers
+  //     if (!links[item]) {
+  //       links[item] = []
+  //     }
+  //     links[item].push(dict[item])
+  //     dict[item].count += 1
+  //     if (i !== row.length - 1) {
+  //       dict[item].next = {}
+  //     }
+  //     dict = dict[item].next
+  //   })
+  // })
 
   console.log(JSON.stringify(tree, null, 2))
   console.log(JSON.stringify(links, null, 2))
