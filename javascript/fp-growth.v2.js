@@ -1,9 +1,20 @@
-
+function removeDuplicateRows (transactions) {
+  let setRows = {}
+  let uniqueItems = []
+  transactions.forEach((rows) => {
+    const key = rows.sort().join(',')
+    if (!setRows[key]) {
+      uniqueItems.push(rows)
+    }
+    setRows[key] = true
+  })
+  return uniqueItems
+}
 // createHeader returns a dictionary with the frequency of the items
 // in the transactions
 function createHeader (transactions) {
   const reduceRow = (header, item) => {
-    if (!header[item]) {
+    if (header[item] === null || header[item] === undefined) {
       header[item] = 0
     }
     header[item] += 1
@@ -31,8 +42,9 @@ function pruneHeader (header, minSupport = 1) {
 function sortRow (items, header) {
   const uniqueItems = [...new Set(items)]
   const filteredItems = uniqueItems.filter(item => {
-    return header[item]
+    return header[item] !== undefined && header[item] !== null
   })
+
   return filteredItems.sort((a, b) => {
     // If the score is the same, sort by alphabets
     if (header[b] === header[a]) {
@@ -46,6 +58,34 @@ function sortTransactions (transactions, header) {
   return transactions.map(row => sortRow(row, header))
 }
 
+function createTree (transactions) {
+  const tree = {}
+
+  for (let i = 0; i < transactions.length; i += 1) {
+    const rows = transactions[i]
+
+    for (let j = 0; j < rows.length; j += 1) {
+      const nextIndex = j + 1
+      const prevIndex = j - 1
+      const currIndex = j
+
+      const prev = rows && rows[prevIndex] ? rows[prevIndex] : null
+      const curr = rows[currIndex]
+      const next = rows && rows[nextIndex] ? rows[nextIndex] : null
+
+      if (!tree[prev]) {
+        tree[prev] = {}
+      }
+
+      if (!tree[prev][curr]) {
+        tree[prev][curr] = { count: -1, next }
+      }
+      tree[prev][curr].count += 1
+    }
+  }
+  return tree
+}
+
 function main () {
   const transactions = [['a', 'b', 'c'],
   ['a', 'd', 'e'],
@@ -57,90 +97,18 @@ function main () {
   ['a', 'b', 'c', 'd'],
   ['c', 'd', 'e'],
   ['a', 'b', 'c']]
-  const header = createHeader(transactions)
-  console.log(header)
+  const header = createHeader(removeDuplicateRows(transactions))
+  console.log('header:', header)
 
   const prunnedHeader = pruneHeader(header, 3)
-  console.log(prunnedHeader)
+  console.log('prunnedHeader:', prunnedHeader)
 
   const sortedTransactions = sortTransactions(transactions, prunnedHeader)
-  console.log(sortedTransactions)
-  // let tree = {
-  //   root: {}
-  // }
-
-  let links = {}
+  console.log('sortedTransactions:', sortedTransactions)
 
   // root
-  const tree = {
-    // start: {},
-    // links: {
-    //   a: {}
-    // }
-  }
+  const tree = createTree(sortedTransactions)
 
-  for (let i = 0; i < sortedTransactions.length; i += 1) {
-    for (let j = 0; j < sortedTransactions[i].length; j += 1) {
-      const rows = sortedTransactions[i]
-      const prev = rows[j - 1]
-      const curr = rows[j]
-      const next = j + 1 < rows.length ? rows[j + 1] : null
-
-      if (!tree[prev]) {
-        tree[prev] = {}
-      }
-
-      if (!tree[prev][curr]) {
-        tree[prev][curr] = { count: -1, next }
-      }
-
-      tree[prev][curr].count += 1
-      // if (j === 0) {
-      //   if (!tree.start[curr]) {
-      //     tree.start[curr] = {}
-      //   }
-      //   if (!tree.start[curr][next]) {
-      //     tree.start[curr][next] = {count: 0}
-      //   }
-      //   tree.start[curr][next].count += 1
-      // } else {
-      //   const prev = rows[j - 1]
-      //   if (!tree.links[curr]) {
-      //     tree.links[curr] = {}
-      //   }
-      //   if (!tree.links[curr][next]) {
-      //     tree.links[curr][next] = { prev, count: 0 }
-      //   }
-      //   tree.links[curr][next].count += 1
-      // }
-    }
-  }
-
-  console.log(tree)
-  // sortedTransactions.forEach((row) => {
-  //   let dict = tree.root
-  //   row.forEach((item, i) => {
-  //     if (!dict[item]) {
-  //       dict[item] = {
-  //         count: 0,
-  //         next: null,
-  //         prev: i - 1 > -1 ? row[i - 1] : null
-  //       }
-  //     }
-  //           // Link similar items through pointers
-  //     if (!links[item]) {
-  //       links[item] = []
-  //     }
-  //     links[item].push(dict[item])
-  //     dict[item].count += 1
-  //     if (i !== row.length - 1) {
-  //       dict[item].next = {}
-  //     }
-  //     dict = dict[item].next
-  //   })
-  // })
-
-  console.log(JSON.stringify(tree, null, 2))
-  console.log(JSON.stringify(links, null, 2))
+  console.log('tree:', JSON.stringify(tree, null, 2))
 }
 main()
