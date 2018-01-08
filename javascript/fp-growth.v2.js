@@ -2,7 +2,7 @@ function removeDuplicateRows (transactions) {
   let setRows = {}
   let uniqueItems = []
   transactions.forEach((rows) => {
-    const key = rows.sort().join(',')
+    const key = [...new Set(rows)].sort().join(',')
     if (!setRows[key]) {
       uniqueItems.push(rows)
     }
@@ -54,10 +54,12 @@ function sortRow (items, header) {
   })
 }
 
+// sortTransactions
 function sortTransactions (transactions, header) {
   return transactions.map(row => sortRow(row, header))
 }
 
+// createTree
 function createTree (transactions) {
   const tree = {}
 
@@ -65,10 +67,12 @@ function createTree (transactions) {
     const rows = transactions[i]
 
     for (let j = 0; j < rows.length; j += 1) {
-      const nextIndex = j + 1
+      const prevPrevIndex = j - 2
       const prevIndex = j - 1
       const currIndex = j
+      const nextIndex = j + 1
 
+      const prevPrev = rows && rows[prevPrevIndex] ? rows[prevPrevIndex] : null
       const prev = rows && rows[prevIndex] ? rows[prevIndex] : null
       const curr = rows[currIndex]
       const next = rows && rows[nextIndex] ? rows[nextIndex] : null
@@ -78,11 +82,12 @@ function createTree (transactions) {
       }
 
       if (!tree[prev][curr]) {
-        tree[prev][curr] = { count: -1, next }
+        tree[prev][curr] = { count: 0, next, prevPrev }
       }
       tree[prev][curr].count += 1
     }
   }
+
   return tree
 }
 
@@ -110,5 +115,13 @@ function main () {
   const tree = createTree(sortedTransactions)
 
   console.log('tree:', JSON.stringify(tree, null, 2))
+
+  for (let k in tree) {
+    for (let j in tree[k]) {
+      if (tree[k][j].count > 1) {
+        console.log(tree[k][j].next, j)
+      }
+    }
+  }
 }
 main()
