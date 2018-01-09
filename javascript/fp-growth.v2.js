@@ -1,3 +1,13 @@
+// class Tree {
+//   constructor (name) {
+//     this.name = name
+//     this.count = 0
+//     this.children = {}
+//     this.parent = null
+//     this.nodeLink = null
+//   }
+// }
+
 function removeDuplicateRows (transactions) {
   let setRows = {}
   let uniqueItems = []
