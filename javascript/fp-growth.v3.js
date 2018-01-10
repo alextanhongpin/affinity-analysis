@@ -58,10 +58,12 @@ function main () {
         if (headerTable[itemName][1]) {
           // Already exist, change to something else
           let item = headerTable[itemName][1]
+          console.log('check:', item.nodeLink)
           while (item.nodeLink) {
             item = item.nodeLink
           }
-          item.nodeLink = currNode.children[itemName]
+          console.log('check_end:', item)
+          item.nodeLink = new Node(itemName, currNode.itemName)// currNode.children[itemName]
           console.log('item:', item)
         } else {
           // Link to header table pointer
@@ -72,6 +74,7 @@ function main () {
       }
     })
   })
+
   console.log('rootNode', JSON.stringify(rootNode, null, 2))
   console.log('headerTable', JSON.stringify(headerTable, null, 2))
 }
