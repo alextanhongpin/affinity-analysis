@@ -13,13 +13,13 @@ class Node {
 }
 
 function main () {
-  const transactionDb = [
-    ['M', 'O', 'N', 'K', 'E', 'Y'],
-    ['D', 'O', 'N', 'K', 'E', 'Y'],
-    ['M', 'A', 'K', 'E'],
-    ['M', 'U', 'C', 'K', 'Y'],
-    ['C', 'O', 'O', 'K', 'I', 'E']
-  ]
+  // const transactionDb = [
+  //   ['M', 'O', 'N', 'K', 'E', 'Y'],
+  //   ['D', 'O', 'N', 'K', 'E', 'Y'],
+  //   ['M', 'A', 'K', 'E'],
+  //   ['M', 'U', 'C', 'K', 'Y'],
+  //   ['C', 'O', 'O', 'K', 'I', 'E']
+  // ]
   // const transactionDb = [
   //   ['A', 'B', 'D', 'E'],
   //   ['B', 'C', 'E'],
@@ -28,8 +28,32 @@ function main () {
   //   ['A', 'B', 'C', 'D', 'E'],
   //   ['B', 'C', 'D']
   // ]
+  // const transactionDb = [
+  //   ['a', 'b'],
+  //   ['b', 'c', 'd'],
+  //   ['a', 'c', 'd', 'e'],
+  //   ['a', 'd', 'e'],
+  //   ['a', 'b', 'c'],
+  //   ['a', 'b', 'c', 'd'],
+  //   ['a'],
+  //   ['a', 'b', 'c'],
+  //   ['a', 'b', 'd'],
+  //   ['b', 'c', 'e']
+  // ]
+  const transactionDb = [
+    ['i1', 'i2', 'i5'],
+    ['i2', 'i4'],
+    ['i2', 'i3'],
+    ['i1', 'i2', 'i4'],
+    ['i1', 'i3'],
+    ['i2', 'i3'],
+    ['i1', 'i3'],
+    ['i1', 'i2', 'i3', 'i5'],
+    ['i1', 'i2', 'i3']
+  ]
   // First iteration through the transaction db
-  const listOfFrequentItems = collectFrequentItems(transactionDb)
+  const minSup = 1
+  const listOfFrequentItems = collectFrequentItems(transactionDb, minSup)
   console.log('listOfFrequentItems:', listOfFrequentItems)
 
   const headerTable = constructHeaderTable(listOfFrequentItems)
@@ -82,7 +106,7 @@ function main () {
 
   const conditionalFPTree = getConditionalFPTree(conditionalPatternBases)
 
-  console.log(JSON.stringify(conditionalFPTree, null, 2))
+  console.log('conditionalFPTree:', JSON.stringify(conditionalFPTree, null, 2))
 }
 
 main()
@@ -125,12 +149,6 @@ function traverseParent (link) {
   const conditionalPatternBase = []
   // let patterns = []
   do {
-    // Check if the support is still valid
-    // if (node.count >= 3) {
-    //   // Merge
-    //   const out = patterns.concat(node.itemName)
-    //   conditionalPatternBase.push(out)
-    // }
     conditionalPatternBase.push(node.itemName)
     // patterns.push(node.itemName)
     node = node.parentLink
@@ -150,21 +168,22 @@ function traverseNodeLink (headerTable, itemName) {
 
   const validPatternBases = conditionalPatternBases.filter(item => item.length)// Take only non-empty arrays
   .map((items) => {
-    // const flattenedItems = items.map((item) => {
-    //   if (Array.isArray(item)) {
-    //     return item.join(',')
-    //   }
-    //   return item
-    // })
-    // return i.concat(flattenedItems)
-    // if (Array.isArray(item)) {
-    //   return item.join
-    // }
     return items.join(',')
-  }) // Join them
+  })
+  console.log('validPatternBases:', validPatternBases)
 
-  const output = [...new Set(validPatternBases)].map((item) => item.split(',')) // Remove duplicates
-  return output
+  const patternBaseWithCount = validPatternBases.reduce((tree, a) => {
+    if (!tree[a]) {
+      tree[a] = 0
+    }
+    tree[a] += 1
+    return tree
+  }, {})
+
+  return Object.entries(patternBaseWithCount)
+  .map(([key, score]) => {
+    return { key: key.split(','), score }
+  })
 }
 
 function getConditionalPatternBase (headerTable) {
@@ -174,7 +193,6 @@ function getConditionalPatternBase (headerTable) {
     if (conditionalPatternBase.length) {
       tree[item] = conditionalPatternBase
     }
-
     return tree
   }, {})
   return conditionalPatternBases
@@ -182,15 +200,49 @@ function getConditionalPatternBase (headerTable) {
 
 function getConditionalFPTree (conditionalPatternBases) {
   const items = Object.keys(conditionalPatternBases)
-  return items.map(item => {
-    const commonItems = intersect(conditionalPatternBases[item])
-    return [item, commonItems]
+
+  items.map(item => {
+    const patternBases = conditionalPatternBases[item].map((item) => {
+      return item.key
+    })
+    const sortedPatternBases = patternBases.sort((a, b) => {
+      return b.length - a.length
+    })
+
+    console.log('sortedPatternBase:', sortedPatternBases)
+    if (sortedPatternBases.length === 1) {
+      return sortedPatternBases[0]
+    }
+    // The conditional FP-tree
+    const root = new Node(null, null)
+    sortedPatternBases.forEach((items) => {
+      let node = root
+
+      items.forEach((item) => {
+        if (node.children[item] && node.children[item].itemName === item) {
+          node.children[item].increment()
+        } else {
+          node.children[item] = new Node(item, node)
+        }
+        node = node.children[item]
+      })
+    })
+
+    console.log('root', root)
+
+    Object.entries(root).map((item) => {
+
+      // root.children[item]
+    })
+    // console.log('intersect:', intersect(sortedPatternBases), 'ori:', sortedPatternBases)
   })
+
+  return conditionalPatternBases
 }
 
 function intersect (arr) {
   if (arr.length <= 1) {
-    return arr
+    return arr[0]
   }
   // Sort the arrays by items count - we only want to find the
   // intersection of the least items in the array
