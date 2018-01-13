@@ -137,4 +137,10 @@ function main () {
   console.log('frequentItems:', frequentItems, frequentItems.length)
 }
 
+// TODO: Make it modular
+// const fpg = new FPGrowth().setMinSupport(0.2).setNumPartitions(10)
+// model = fpg.run(transactions)
+// model.freqItemsets.collect().forEach((...))
+// model.generateAssociationRules(minConfidence).collect().forEach((rule) => rule.consequent, rule.antecedent, rule.confidence)
+
 main()
