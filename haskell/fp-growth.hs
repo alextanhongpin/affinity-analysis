@@ -5,12 +5,10 @@ import qualified Data.Maybe as Maybe
 import Data.Function (on)
 
 main :: IO()
-
--- data Node = Node {}
--- data FPTree = FPTree { count :: Int,
---                        itemName :: String,
---                        children :: Map.Map,
---                        parentLink ::  } deriving (Show)
+ 
+data Node = EmptyNode | Node { name :: String,
+                               count :: Int,
+                               node :: Node } deriving (Show)
 
 main = do
   let transactions = [['a', 'b'],
@@ -35,6 +33,8 @@ main = do
   print $ processTransactions headerMap transactions
 
   print "Build FP-Tree:"
+  let rootNode = Node { name = "null", node = EmptyNode, count = 10 }
+  print $ Node { name = "null", node = rootNode, count = 0 }
 
 -- sort utility to compare the score of each items
 sortItem :: (Char, Int) -> (Char, Int) -> Ordering
@@ -66,3 +66,5 @@ processTransactions :: Map.Map Char Int -> [[Char]] -> [[Char]]
 processTransactions headerMap transactions =
   map (processRow headerMap) transactions
 
+-- printTree :: Node
+-- printTree node =
