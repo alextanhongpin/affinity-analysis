@@ -9,7 +9,7 @@ main :: IO()
  
 data Node = EmptyNode | Node { name :: String,
                                count :: Int,
-                               node :: Node } deriving (Show)
+                               node :: Node } deriving (Show, Ord, Eq)
 
 main = do
   let transactions = [['a', 'b'],
@@ -73,5 +73,7 @@ processTransactions headerMap transactions =
 -- printTree :: Node
 -- printTree node =
 printTree :: Node -> IO()
-printTree Node { name = name } = print name
+printTree Node { name = name, node = node }
+  | node == EmptyNode = print "This is an empty node"
+  | otherwise = print $ "has node " ++ name
 printTree EmptyNode = print "no node"
