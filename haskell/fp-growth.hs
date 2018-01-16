@@ -1,6 +1,9 @@
+-- NOTE: Representing node-link (pointer reference) in haskell is a little complicated...
+
 import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
+
 import System.IO
 
 import Data.Function (on)
@@ -40,6 +43,11 @@ main = do
   printTree rootNode
   printTree EmptyNode
 
+  let finalTransactions = processTransactions headerMap transactions
+  print finalTransactions
+
+  -- fpTree finalTransactions
+
 -- sort utility to compare the score of each items
 sortItem :: (Char, Int) -> (Char, Int) -> Ordering
 sortItem (_, b1) (_, b2) 
@@ -77,3 +85,9 @@ printTree Node { name = name, node = node }
   | node == EmptyNode = print "This is an empty node"
   | otherwise = print $ "has node " ++ name
 printTree EmptyNode = print "no node"
+
+
+-- fpTree :: [[Char]] -> Node
+-- fpTree transactions = 
+--   root = Node { name = "Null", count = 0, node = EmptyNode }
+--   [ item | item <- row | row <- transactions]
