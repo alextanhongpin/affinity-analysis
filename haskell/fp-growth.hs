@@ -1,6 +1,7 @@
 import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
+import System.IO
 
 import Data.Function (on)
 
@@ -33,8 +34,11 @@ main = do
   print $ processTransactions headerMap transactions
 
   print "Build FP-Tree:"
+  -- Initialize a root node
   let rootNode = Node { name = "null", node = EmptyNode, count = 10 }
   print $ Node { name = "null", node = rootNode, count = 0 }
+  printTree rootNode
+  printTree EmptyNode
 
 -- sort utility to compare the score of each items
 sortItem :: (Char, Int) -> (Char, Int) -> Ordering
@@ -68,3 +72,6 @@ processTransactions headerMap transactions =
 
 -- printTree :: Node
 -- printTree node =
+printTree :: Node -> IO()
+printTree Node { name = name } = print name
+printTree EmptyNode = print "no node"
