@@ -60,11 +60,33 @@ const dataset6 = [
   ['B', 'C']
 ]
 
+const dataset7 = [
+  ['bread', 'butter', 'jam'],
+  ['butter', 'coke'],
+  ['butter', 'milk'],
+  ['bread', 'butter', 'coke'],
+  ['bread', 'milk'],
+  ['butter', 'milk'],
+  ['bread', 'milk'],
+  ['bread', 'butter', 'milk', 'jam'],
+  ['bread', 'butter', 'milk']
+]
+// Expected Result with ECLAT:
+// {bread,butter} => [ 1, 4, 8, 9 ]
+// {bread,jam} => [ 1, 8 ]
+// {bread,milk} => [ 5, 7, 8, 9 ]
+// {butter,jam} => [ 1, 8 ]
+// {butter,coke} => [ 2, 4 ]
+// {butter,milk} => [ 3, 6, 8, 9 ]
+// {bread,butter,jam} => [ 1, 8 ]
+// {bread,butter,milk} => [ 8, 9 ]
+
 module.exports = {
   dataset1,
   dataset2,
   dataset3,
   dataset4,
   dataset5,
-  dataset6
+  dataset6,
+  dataset7
 }
