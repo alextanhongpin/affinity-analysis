@@ -4,14 +4,14 @@
 // model = fpg.run(transactions)
 // model.freqItemsets.collect().forEach((...))
 // model.generateAssociationRules(minConfidence).collect().forEach((rule) => rule.consequent, rule.antecedent, rule.confidence)
-const { dataset5: transactions } = require('./core/data')
+const { dataset2: transactions } = require('./core/data')
 const FPGrowth = require('./index')
 
 function main () {
   const fpg = new FPGrowth({ minSupport: 3 })
   const model = fpg.run(transactions)
   fpg.print()
-  console.log(model)
+  console.log('model', model, model.length)
 }
 
 main()

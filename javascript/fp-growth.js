@@ -1,4 +1,4 @@
-const { dataset3: data } = require('./core/data')
+const { dataset6: data } = require('./core/data')
 const Node = require('./core/node')
 const HeaderTable = require('./core/header-table')
 const printTree = require('./core/print')
