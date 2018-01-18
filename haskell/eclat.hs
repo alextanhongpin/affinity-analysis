@@ -5,8 +5,8 @@ import qualified Data.Set as Set
 
 main :: IO()
 main = do
-  let newline = putStr "\n"
-  let minimumSupport = 2
+  let minimumSupport = 2 -- minimumSupport is the minimum frequency the items should appear in each transactions
+  let k = 2 -- k is the frequent itemsets count. if k is 2, them it should contain a minimum of two items e.g. {bread, butter}
 
   let transactions = [["bread", "butter", "jam"],
                       ["butter", "coke"],
@@ -17,77 +17,40 @@ main = do
                       ["bread", "milk"],
                       ["bread", "butter", "milk", "jam"],
                       ["bread", "butter", "milk"]]
-  let itemsWithTransactionId = concat [[(tid, item) | item <- List.nub row ] | (tid, row) <- zip [1..] transactions]
-  print "Items with ID:"
-  newline
-  print itemsWithTransactionId
 
-  newline
+  let verticalFormat = toVerticalFormat transactions -- convert the transactions from horizontal to vertical format
+  print $ eclat verticalFormat minimumSupport k -- perform a recursive eclat to find all n-frequent itemsets
 
-  print "Invert Indices:"
-  let inverted = invertIndices itemsWithTransactionId
-  print inverted
-  
-  newline
-  
-  print $ eclat inverted minimumSupport
+type Item = String
+type ItemRow = [Item]
 
-sortBySnd :: (Int, String) -> (Int, String) -> Ordering
-sortBySnd (_, a) (_, b)
-  | a > b = GT
-  | a < b = LT
-  | otherwise = EQ
+type ItemSet = Set.Set String
+type TIDs = Set.Set Int
+type VerticalFormatTransactions = Map.Map ItemSet TIDs
 
-groupBySnd :: (Int, String) -> (Int, String) -> Bool
-groupBySnd (_, a) (_, b)
-  | a == b = True
-  | otherwise = False
-
-foldItems :: [(Int, String)] -> [Int]
-foldItems [] = []
-foldItems [(tid, item)] = [tid]
-foldItems ((tid, item):xs) = tid:foldItems xs
-
-sortByItems :: ([String], [Int]) -> ([String], [Int]) -> Ordering
-sortByItems (a, _) (b, _) 
-  | a > b = GT
-  | a < b = LT
-  | otherwise = EQ
-
-groupByItems :: ([String], [Int]) -> ([String], [Int]) -> Bool
-groupByItems (a, _) (b, _) 
-  | a == b = True
-  | otherwise = False
-
-invertIndices :: [(Int, String)] -> [([String], [Int])]
-invertIndices transactions =
-  map (\items -> ([takeFirst items], foldItems items)) $ groupAndSortItems transactions
-  where
-    sortItems = List.sortBy sortBySnd
-    groupItems = List.groupBy groupBySnd
-    groupAndSortItems = groupItems . sortItems
-    takeFirst items = snd $ head items
-
-frequentItemsets :: [([String], [Int])] -> Int -> [([String], [Int])]
-frequentItemsets transactions minimumSupport =
-  removeDuplicate $ applyFilter [(uniqueItems union, intersection) | 
-    (item1, ids1) <- transactions, 
-    (item2, ids2) <- transactions, 
-    let sortedItem1 = List.sort item1,
-    let sortedItem2 = List.sort item2,
-    sortedItem1 /= sortedItem2,
-    let union = item1 `List.union` item2,
-    let intersection = ids1 `List.intersect` ids2]
+toVerticalFormat :: [ItemRow] -> VerticalFormatTransactions
+toVerticalFormat transactions = 
+  groupByItem $ concat [[(Set.fromList [item], Set.fromList [tid]) | item <- row ] | (row, tid) <- indexedItem]
   where 
-    applyFilter = List.filter (\(_, items) -> length items >= minimumSupport)
-    groupItems = List.groupBy groupByItems
-    sortItems = List.sortBy sortByItems
-    groupAndSortItems = groupItems . sortItems
-    removeDuplicate items = map head $ groupAndSortItems items
-    uniqueItems = Set.toList . Set.fromList
+    indexedItem = zip transactions [1..]
+    groupByItem a =  Map.fromListWith (Set.union) a
 
-eclat :: [([String], [Int])] -> Int -> [([String], [Int])]
-eclat [] _ = []
-eclat transactions minimumSupport = 
-  let output = frequentItemsets transactions minimumSupport
-  in output ++ frequentItemsets output minimumSupport
+
+frequentItemsets :: VerticalFormatTransactions -> Int -> Int -> VerticalFormatTransactions
+frequentItemsets transactions minimumSupport k =
+  aboveMinimumSupportThreshold . mapToList $ [(unionItems, intersectionItems) | 
+                                              (item1, ids1) <- Map.toList transactions, 
+                                              (item2, ids2) <- Map.toList transactions, 
+                                              -- let minimumCombinations = minimum [Set.size item1, Set.size item2],
+                                              let unionItems = item1 `Set.union` item2, 
+                                              let intersectionItems = ids1 `Set.intersection` ids2, 
+                                              Set.size unionItems >= k]
+  where 
+    aboveMinimumSupportThreshold = Map.filter (\items -> Set.size items >= minimumSupport)
+    mapToList = Map.fromList
+
+eclat :: VerticalFormatTransactions -> Int -> Int -> VerticalFormatTransactions
+eclat transactions minimumSupport k
+  | Map.null transactions = Map.empty 
+  | otherwise = let output = frequentItemsets transactions minimumSupport k
+                in Map.union output (eclat output minimumSupport (k + 1))
