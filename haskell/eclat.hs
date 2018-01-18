@@ -1,11 +1,9 @@
 import qualified Data.Map as Map
-import qualified Data.List as List
-import qualified Data.Maybe as Maybe
 import qualified Data.Set as Set
 
 main :: IO()
 main = do
-  let minimumSupport = 2 -- minimumSupport is the minimum frequency the items should appear in each transactions
+  let minSup = 2 -- minSup is the minimum support the items should appear in each transactions
   let k = 2 -- k is the frequent itemsets count. if k is 2, them it should contain a minimum of two items e.g. {bread, butter}
 
   let transactions = [["bread", "butter", "jam"],
@@ -18,39 +16,47 @@ main = do
                       ["bread", "butter", "milk", "jam"],
                       ["bread", "butter", "milk"]]
 
-  let verticalFormat = toVerticalFormat transactions -- convert the transactions from horizontal to vertical format
-  print $ eclat verticalFormat minimumSupport k -- perform a recursive eclat to find all n-frequent itemsets
+  let tidList = formatTransactions transactions -- convert the transactions from horizontal to vertical format
+  print $ eclat tidList minSup k -- perform a recursive eclat to find all n-frequent itemsets
 
 type Item = String
-type ItemRow = [Item]
+type Row = [Item]
+type Transactions = [Row]
+
+type MinSup = Int
+type K = Int
 
 type ItemSet = Set.Set String
-type TIDs = Set.Set Int
-type VerticalFormatTransactions = Map.Map ItemSet TIDs
+type TIDSet = Set.Set Int
+type TIDList = Map.Map ItemSet TIDSet
 
-toVerticalFormat :: [ItemRow] -> VerticalFormatTransactions
-toVerticalFormat transactions = 
-  groupByItem $ concat [[(Set.fromList [item], Set.fromList [tid]) | item <- row ] | (row, tid) <- indexedItem]
+formatTransactions :: Transactions -> TIDList
+formatTransactions transactions = 
+  groupByItem $ concat [ [ (toSet item, toSet tid) | item <- unique row ] | (row, tid) <- tidList ]
   where 
-    indexedItem = zip transactions [1..]
-    groupByItem a =  Map.fromListWith (Set.union) a
+    tidList = zip transactions [1..]
+    groupByItem =  Map.fromListWith Set.union
+    toSet a = Set.fromList [a]
+    unique = Set.toList . Set.fromList
 
 
-frequentItemsets :: VerticalFormatTransactions -> Int -> Int -> VerticalFormatTransactions
-frequentItemsets transactions minimumSupport k =
-  aboveMinimumSupportThreshold . mapToList $ [(unionItems, intersectionItems) | 
-                                              (item1, ids1) <- Map.toList transactions, 
-                                              (item2, ids2) <- Map.toList transactions, 
-                                              -- let minimumCombinations = minimum [Set.size item1, Set.size item2],
-                                              let unionItems = item1 `Set.union` item2, 
-                                              let intersectionItems = ids1 `Set.intersection` ids2, 
-                                              Set.size unionItems >= k]
+frequentItemsets :: TIDList -> MinSup -> K -> TIDList
+frequentItemsets tidList minSup k =
+  satisfyMinSup . toMap $ [(itemSet, tidSet) | 
+                          (item1, tid1) <- tids,
+                          (item2, tid2) <- tids, 
+                          let itemSet = item1 `Set.union` item2, 
+                          let tidSet = tid1 `Set.intersection` tid2, 
+                          item1 /= item2,
+                          Set.size itemSet >= k]
   where 
-    aboveMinimumSupportThreshold = Map.filter (\items -> Set.size items >= minimumSupport)
-    mapToList = Map.fromList
+    tids = Map.toList tidList
+    satisfyMinSup = Map.filter (\items -> Set.size items >= minSup)
+    toMap = Map.fromList
 
-eclat :: VerticalFormatTransactions -> Int -> Int -> VerticalFormatTransactions
-eclat transactions minimumSupport k
-  | Map.null transactions = Map.empty 
-  | otherwise = let output = frequentItemsets transactions minimumSupport k
-                in Map.union output (eclat output minimumSupport (k + 1))
+eclat :: TIDList -> MinSup -> K -> TIDList
+eclat tidList minSup k
+  | Map.null tidList = Map.empty 
+  | otherwise = newTidList `Map.union` eclat newTidList minSup nextK
+                where newTidList = frequentItemsets tidList minSup k
+                      nextK = k + 1
