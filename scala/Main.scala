@@ -1,4 +1,10 @@
-val transactions: List[List[String]] = List(
+type ItemSets = Set[String]
+type TIDSets = Set[Int]
+type FrequentItems = List[(ItemSets, TIDSets)]
+type Transactions = List[List[String]]
+type VerticalFormat = scala.collection.mutable.Map[ItemSets, TIDSets]
+
+val transactions: Transactions = List(
   List("bread", "butter", "jam"),
   List("butter", "coke"),
   List("butter", "milk"),
@@ -10,21 +16,25 @@ val transactions: List[List[String]] = List(
   List("bread", "butter", "milk")
 )
 
-// Assign transaction ids (tid) to each item in the row
-val itemsWithTid = transactions.indices flatMap { i => {
-  transactions(i) map { item =>
-    (item, i + 1)
-  }
-}}
+def formatTransactions (transactions: Transactions): VerticalFormat = {
+  val itemsWithTid = scala.collection.mutable.Map[ItemSets, TIDSets]()
 
-// Group the items by name
-val groupedItems = itemsWithTid groupBy {_._1} map {
-  case (k, v) => (Set(k), (v map { _._2 }).toSet)
+  transactions.indices foreach { i: Int => {
+    transactions(i) foreach { item: String =>
+      val itemSet = Set(item)
+      val tidSet = Set(i + 1)
+
+      val prev = itemsWithTid get itemSet
+      prev match {
+        case Some(prevVal) => itemsWithTid put (itemSet, prevVal union tidSet)
+        case None => itemsWithTid put (itemSet, tidSet)
+      }
+    } 
+  }}
+  
+  itemsWithTid
 }
 
-type ItemSets = Set[String]
-type TIDSets = Set[Int]
-type FrequentItems = List[(ItemSets, TIDSets)]
 
 def frequentItemsets(items: FrequentItems, k: Int, minSup: Int): FrequentItems = {
   val rng = items.indices
@@ -58,4 +68,6 @@ def eclat (xs: FrequentItems, k: Int = 2): FrequentItems = {
   mineFrequentPatterns(xs, 2, List())
 }
 
-println(eclat(groupedItems.toList))
+val groupedItems = formatTransactions(transactions)
+val frequentItemsets = eclat(groupedItems.toList)
+println(s"got ${frequentItemsets.length} =>", frequentItemsets)
