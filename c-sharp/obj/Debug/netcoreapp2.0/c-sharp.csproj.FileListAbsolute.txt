@@ -1,0 +1,10 @@
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/bin/Debug/netcoreapp2.0/c-sharp.deps.json
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/bin/Debug/netcoreapp2.0/c-sharp.runtimeconfig.json
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/bin/Debug/netcoreapp2.0/c-sharp.runtimeconfig.dev.json
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/bin/Debug/netcoreapp2.0/c-sharp.dll
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/bin/Debug/netcoreapp2.0/c-sharp.pdb
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/obj/Debug/netcoreapp2.0/c-sharp.csproj.CoreCompileInputs.cache
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/obj/Debug/netcoreapp2.0/c-sharp.AssemblyInfoInputs.cache
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/obj/Debug/netcoreapp2.0/c-sharp.AssemblyInfo.cs
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/obj/Debug/netcoreapp2.0/c-sharp.dll
+/Users/alextanhongpin/Documents/python/python-affinity-analysis/c-sharp/obj/Debug/netcoreapp2.0/c-sharp.pdb
