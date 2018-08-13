@@ -20,21 +20,70 @@ class FPTree {
 }
 
 function main () {
+  // let data = {
+  //   '001': [...'rzhjp'],
+  //   '002': [...'zyxwvuts'],
+  //   '003': ['z'],
+  //   '004': [...'rxnos'],
+  //   '005': [...'yrxzqtp'],
+  //   '006': [...'yzxeqstm']
+  // }
+
+  // Output:
+  // [ [ 'z' ],
+  // [ 'r' ],
+  // [ 'x' ],
+  // [ 'x', 'z' ],
+  // [ 's' ],
+  // [ 's', 'x' ],
+  // [ 't' ],
+  // [ 't', 'x' ],
+  // [ 't', 'z' ],
+  // [ 't', 'z', 'x' ],
+  // [ 'y' ],
+  // [ 'y', 't' ],
+  // [ 'y', 'x' ],
+  // [ 'y', 'x', 't' ],
+  // [ 'y', 'z' ],
+  // [ 'y', 'z', 't' ],
+  // [ 'y', 'z', 'x' ],
+  // [ 'y', 'z', 'x', 't' ] ]
+
   let data = {
-    '001': [...'rzhjp'],
-    '002': [...'zyxwvuts'],
-    '003': ['z'],
-    '004': [...'rxnos'],
-    '005': [...'yrxzqtp'],
-    '006': [...'yzxeqstm']
+    0: [...'abde'],
+    1: [...'bce'],
+    2: [...'abde'],
+    3: [...'abce'],
+    4: [...'abcde'],
+    5: [...'bcd']
   }
 
+  // Output:
+  // [ [ 'b' ],
+  // [ 'e' ],
+  // [ 'e', 'b' ],
+  // [ 'a' ],
+  // [ 'a', 'b' ],
+  // [ 'a', 'e' ],
+  // [ 'a', 'e', 'b' ],
+  // [ 'd' ],
+  // [ 'd', 'b' ],
+  // [ 'd', 'a' ],
+  // [ 'd', 'a', 'b' ],
+  // [ 'd', 'e' ],
+  // [ 'd', 'e', 'a' ],
+  // [ 'd', 'e', 'b' ],
+  // [ 'd', 'e', 'b', 'a' ],
+  // [ 'c' ],
+  // [ 'c', 'b' ],
+  // [ 'c', 'e' ],
+  // [ 'c', 'e', 'b' ] ]
   let [ fpTree, headerTable ] = constructFPTree(Object.values(data), 3)
 
   fpTree.print()
 
   let frequentItemsets = fpGrowth(headerTable, [])
-  console.log('frequentItemsets', frequentItemsets)
+  console.log('frequentItemsets', frequentItemsets, frequentItemsets.length)
 }
 
 main()
@@ -56,7 +105,7 @@ function fpGrowth (tree, a = [], result = []) {
     for (let prefix in tree[ai]) {
       let path = tree[ai][prefix]
       let pattern = conditionalPatternBase(path.parentNode)
-      
+
       // Repeat it for the number of count
       results.push(...Array(path.count).fill(pattern))
     }
