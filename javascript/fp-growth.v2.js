@@ -31,49 +31,42 @@ function main () {
 
   let [ fpTree, headerTable ] = constructFPTree(Object.values(data), 3)
 
-  let result = []
-  // for (let key in headerTable) {
-  //   fpGrowth(headerTable[key], key, result)
-  // }
+  fpTree.print()
+
+  let frequentItemsets = fpGrowth(headerTable, [])
+  console.log('frequentItemsets', frequentItemsets)
 }
 
 main()
 
-function traverseParent (node, prefixPath = [], count) {
-  if (node.name !== 'root') {
-    for (let _ of Array(count)) {
-      prefixPath.push([node.name])
-    }
-    // prefixPath.push(Array(count).fill(node.name))
-  }
-  if (node.parentNode) {
-    traverseParent(node.parentNode, prefixPath, count)
-  }
+function conditionalPatternBase (node, path = []) {
+  if (node && node.name === 'root') return path
+  path.push(node.name)
+  return conditionalPatternBase(node.parentNode, path)
 }
 
-// function fpGrowth (tree, a, frequentPatterns) {
-//   console.group('Tree', a)
-//   // Let Q be the tree
-//   let results = []
-//   for (let path of tree) {
-//     let result = []
-//     let count = path.count // Minimum support for ai
-//     traverseParent(path.parentNode, result, count)
-//     console.log('result', 'key', a, result)
-//     results.push(...result)
-//   }
-//   console.log('key', a, 'results', results)
-//   console.log()
-//   console.log('innerTree', constructFPTree(results, 3))
-//   let [_, headerTable] = constructFPTree(results, 3)
-//   if (headerTable[a]) {
-//     fpGrowth(headerTable[a], a, frequentPatterns)
-//   }
-//   // if (results.length) {
-//   //   fpGrowth()
-//   // }
-//   console.groupEnd()
-// }
+function fpGrowth (tree, a = [], result = []) {
+  for (let ai in tree) {
+    let results = []
+    let beta = a.concat(ai)
+
+    // Push the solution
+    result.push(beta)
+
+    for (let prefix in tree[ai]) {
+      let path = tree[ai][prefix]
+      let pattern = conditionalPatternBase(path.parentNode)
+      
+      // Repeat it for the number of count
+      results.push(...Array(path.count).fill(pattern))
+    }
+    if (results.length) {
+      let [_, headerTable] = constructFPTree(results, 3)
+      fpGrowth(headerTable, beta, result)
+    }
+  }
+  return result
+}
 
 function constructFPTree (transactions, minimumSupport) {
   // Scan the transaction database once
