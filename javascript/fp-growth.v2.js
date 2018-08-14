@@ -4,13 +4,11 @@ class FPTree {
     this.name = name
     this.count = count
     this.parentNode = parentNode
-    // this.nodeLink = null
     this.children = {}
   }
   increment () {
     this.count += 1
   }
-
   print (i = 0) {
     console.log(''.padStart(i * 2), `${this.name}:${this.count}`)
     for (let child in this.children) {
@@ -82,7 +80,7 @@ function main () {
 
   fpTree.print()
 
-  let frequentItemsets = fpGrowth(headerTable, [])
+  let frequentItemsets = fpGrowth(headerTable, [], 3)
   console.log('frequentItemsets', frequentItemsets, frequentItemsets.length)
 }
 
@@ -94,7 +92,7 @@ function conditionalPatternBase (node, path = []) {
   return conditionalPatternBase(node.parentNode, path)
 }
 
-function fpGrowth (tree, a = [], result = []) {
+function fpGrowth (tree, a = [], minimumSupport = 3, result = []) {
   for (let ai in tree) {
     let results = []
     let beta = a.concat(ai)
@@ -110,8 +108,8 @@ function fpGrowth (tree, a = [], result = []) {
       results.push(...Array(path.count).fill(pattern))
     }
     if (results.length) {
-      let [_, headerTable] = constructFPTree(results, 3)
-      fpGrowth(headerTable, beta, result)
+      let [_, headerTable] = constructFPTree(results, minimumSupport)
+      fpGrowth(headerTable, beta, minimumSupport, result)
     }
   }
   return result
@@ -135,14 +133,12 @@ function constructFPTree (transactions, minimumSupport) {
   }
 
   // Sort in descending order
-  let sortedFreqItems = Object.entries(freqItems)
-    .sort(([k1, v1], [k2, v2]) =>
-      v2 === v1
-        ? k2 === k1
-          ? 0
-          : k2 > k1 ? -1 : 1
-        : v2 > v1 ? 1 : -1
-    )
+  // let sortedFreqItems = Object.entries(freqItems)
+  //   .sort(([k1, v1], [k2, v2]) =>
+  //     v2 === v1
+  //       ? k2 < k1
+  //       : v2 - v1
+  //   )
   // console.log('sortedFreqItems', sortedFreqItems)
 
   let sortedAndFilteredTransactions = transactions.map(tx => {
@@ -152,10 +148,8 @@ function constructFPTree (transactions, minimumSupport) {
     // Sort by score, if they are the same, sort alphabetically
     let sorted = filtered.sort(([k1, v1], [k2, v2]) =>
       v2 === v1
-        ? k2 === k1
-          ? 0
-          : k2 > k1 ? -1 : 1
-        : v2 > v1 ? 1 : -1
+        ? k2 < k1 // Sort in ascending order if they count is the same
+        : v2 > v1 // Else, sort by the count
     ).map(([k, v]) => k)
     return sorted
   })
