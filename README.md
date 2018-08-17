@@ -30,3 +30,7 @@ There is only a single node, because all transactions have the same set of items
 ### Worst case
 
 Multiple nodes where every transaction has a unique set of items.
+
+## Reference
+
+https://arxiv.org/pdf/1701.09042.pdf
