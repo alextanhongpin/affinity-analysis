@@ -17,6 +17,13 @@ def main():
     shuffle(dataset)
     print('dataset', dataset)
 
+
+    dataset = [['mp3-player', 'usb-charger', 'book-dct', 'book-ths'],
+               ['mp3-player', 'usb-charger'],
+               ['usb-charger', 'mp3-player', 'book-dct', 'book-ths'],
+               ['usb-charger'],
+               ['book-dct', 'book-ths']]
+
     items = reduce(lambda x, y: set(x) | set(y), dataset)
 
     db = vertical_format(dataset)
@@ -28,7 +35,7 @@ def main():
     sorted_keys = sorted(solution, key=lambda k: len(solution[k]), reverse=True)
     pr = lambda x: ', '.join([str(i) for i in sorted(x)])
     for key in sorted_keys:
-        print('{{{}}} => {{{}}}'.format(pr(key), 
+        print('{{{}}} => {{{}}}'.format(pr(key),
                                         pr(solution[key])))
 
 def vertical_format(db):
@@ -40,14 +47,13 @@ def vertical_format(db):
     return result
 
 
-def eclat(prefix, items, db, min_sup=2, solution={}, k = 2):
+def eclat(prefix, items, db, min_sup=2, solution={}):
     items_copy = items.copy()
     for item in items:
         new_prefix = prefix | set([item])
         (tids, freq) = frequency(new_prefix, db)
         if freq >= min_sup:
-            if len(new_prefix) >= k:
-                solution[frozenset(new_prefix)] = tids
+            solution[frozenset(new_prefix)] = tids
             # Remove items for each iteration, to avoid duplications
             items_copy.discard(item)
             eclat(new_prefix, items_copy, db, min_sup, solution)
