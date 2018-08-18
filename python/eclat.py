@@ -18,22 +18,45 @@ def main():
     # shuffle(dataset)
     # print('dataset', dataset)
 
-
-    # dataset = [['mp3-player', 'usb-charger', 'book-dct', 'book-ths'],
-    #            ['mp3-player', 'usb-charger'],
-    #            ['usb-charger', 'mp3-player', 'book-dct', 'book-ths'],
-    #            ['usb-charger'],
-    #            ['book-dct', 'book-ths']]
+    dataset = [['mp3-player', 'usb-charger', 'book-dct', 'book-ths'],
+               ['mp3-player', 'usb-charger'],
+               ['usb-charger', 'mp3-player', 'book-dct', 'book-ths'],
+               ['usb-charger'],
+               ['book-dct', 'book-ths']]
 
     items = reduce(lambda x, y: frozenset(x) | frozenset(y), dataset)
-    solution = {}
+    items = [frozenset([i]) for i in items]
     db = vertical_format(dataset)
-    t0 = time.time()
-    eclat(frozenset(), items, db, 2, solution)
-    t1 = time.time()
 
-    print('found {} solutions:'.format(len(solution)), (t1 - t0) * 1000)
+    n = 10000
+    def run_eclat():
+        solution = {}
+        eclat(frozenset(), set(items), db, 2, solution)
+        return solution
+    (elapsed, solution) = benchmark(n, run_eclat)
+
+    print('found {} solutions:'.format(len(solution)), elapsed)
     print_solution(solution)
+    print()
+
+    def run_eclat2():
+        solution = {}
+        eclat2(items, db, 2, solution)
+        return solution
+    (elapsed, solution) = benchmark(n, run_eclat2)
+
+    print('found {} solutions:'.format(len(solution)), elapsed)
+    print_solution(solution)
+
+def benchmark(n, fn):
+    times = [0 for i in range(n)]
+    result = None
+    for i in range(n):
+        t0 = time.time()
+        result = fn()
+        t1 = time.time()
+        times[i] = (t1 - t0)
+    return (sum(times) / n * 1000, result)
 
 
 def print_solution(solution):
@@ -48,26 +71,37 @@ def vertical_format(db):
     result = {}
     result[frozenset()] = set()
     for id, row in enumerate(db):
+        id_set = set([id])
         # Let the empty set hold all value, so that intersection with any empty prefix will return itself
-        result[frozenset()] |= set([id])
+        result[frozenset()] |= id_set
         for i in row:
             key = frozenset([i])
-            result[key] = result.get(key, set()) | set([id])
+            result[key] = result.get(key, set()) | id_set
     return result
 
 
-def eclat(prefix, items, db, min_sup=2, solution={}):
-    items_copy = set(items)
+def eclat(prefix, items, db, minsup = 2, solution = {}):
+    db = db.copy()
+    items_copy = items.copy()
     for item in items:
         items_copy.discard(item)
+        union_items = prefix | item
+        intersection_tids = db[prefix] & db[item]
+        if len(intersection_tids) >= minsup:
+            db[union_items] = intersection_tids
+            solution[union_items] = intersection_tids
+            eclat(union_items, items_copy, db, minsup, solution)
 
-        item_set = frozenset([item])
-        new_prefix = prefix | item_set
-        tids = db[prefix] & db[item_set]
-
-        if len(tids) >= min_sup:
-            db[new_prefix] = tids
-            solution[new_prefix] = tids
-            eclat(new_prefix, items_copy, db, min_sup, solution)
+def eclat2(R, tid, minsup = 2, S = {}):
+    for i, X in enumerate(R):
+        if len(tid[X]) >= minsup:
+            S[X] = tid[X]
+        E = []
+        for j, Y in enumerate(R):
+            if j <= i: continue
+            tid[X | Y] = tid[X] & tid[Y]
+            if len(tid[X | Y]) >= minsup:
+                E.append(X | Y)
+            eclat2(E, tid, minsup, S)
 
 main()
