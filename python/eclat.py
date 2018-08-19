@@ -30,6 +30,17 @@ def main():
 
     n = 10000
     def run_eclat():
+        return eclat3(items, db)
+    (elapsed, solution) = benchmark(n, run_eclat)
+
+    print('found {} solutions:'.format(len(solution)), elapsed)
+    print_solution(solution)
+    print()
+
+
+
+    n = 10000
+    def run_eclat():
         solution = {}
         eclat(frozenset(), set(items), db, 2, solution)
         return solution
@@ -103,5 +114,23 @@ def eclat2(R, tid, minsup = 2, S = {}):
             if len(tid[X | Y]) >= minsup:
                 E.append(X | Y)
             eclat2(E, tid, minsup, S)
+
+def eclat3(A, T, minsup = 2):
+    # A stands for alphabets, or set of items
+    # T is the database that contains transactions of A
+    # F stands for frequent itemsets
+    F = {}
+    C0 = [(x, T[x]) for x in T if len(T[x]) >= minsup]
+    def addFrequentSupersets(p, C):
+        for i, (x, Tx) in enumerate(C):
+            q = p | x
+            Cq = [(y, Tx & Ty) for j, (y, Ty) in enumerate(C) if j > i]
+            Cq = [(y, Ty) for (y, Ty) in Cq if len(Ty) >= minsup]
+            if len(Cq) != 0:
+                addFrequentSupersets(q, Cq)
+            # F = F | frozenset((q, Tx))
+            F[frozenset(q)] = Tx
+    addFrequentSupersets(set(), C0)
+    return F
 
 main()

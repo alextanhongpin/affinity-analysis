@@ -89,3 +89,4 @@ frozenset({'butter', 'jam'}) => {0, 7}
 ## Resources
 http://www.philippe-fournier-viger.com/spmf/index.php?link=algorithms.php
 https://pdfs.semanticscholar.org/3290/153e8a024b7d9da47f2d7f38c6c054d178b6.pdf
+http://ceur-ws.org/Vol-126/schmidtthieme.pdf
