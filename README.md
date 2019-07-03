@@ -35,3 +35,8 @@ Multiple nodes where every transaction has a unique set of items.
 
 - https://arxiv.org/pdf/1701.09042.pdf
 - https://www.cs.sfu.ca/~wangk/pub/pakdd02.pdf
+- http://data-mining.philippe-fournier-viger.com/introduction-high-utility-itemset-mining/
+- http://www.philippe-fournier-viger.com/MICAI2015_EFIM_High_Utility_Itemset_Mining.pdf
+- https://link.springer.com/book/10.1007/978-3-030-04921-8
+- http://data-mining.philippe-fournier-viger.com/tutorial-how-to-discover-hidden-patterns-in-text-documents/
+
