@@ -33,4 +33,5 @@ Multiple nodes where every transaction has a unique set of items.
 
 ## Reference
 
-https://arxiv.org/pdf/1701.09042.pdf
+- https://arxiv.org/pdf/1701.09042.pdf
+- https://www.cs.sfu.ca/~wangk/pub/pakdd02.pdf
