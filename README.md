@@ -31,6 +31,10 @@ There is only a single node, because all transactions have the same set of items
 
 Multiple nodes where every transaction has a unique set of items.
 
+## Other solution
+
+https://github.com/alextanhongpin/machine-learning-in-action/blob/master/fp_growth.ipynb
+
 ## Reference
 
 - https://arxiv.org/pdf/1701.09042.pdf
